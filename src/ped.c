@@ -256,7 +256,7 @@ struct Session* newSession(char* filename)
 			
 
 			/* Set initial position to 0 */
-			session->position = 5;
+			session->position = session->size;
 
 			/* Set the session to active */
 			session->isActive = 1;
