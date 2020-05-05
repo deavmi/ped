@@ -9,8 +9,6 @@
 #include "ped.h"
 #include "commands.c"
 
-#include "tty.c"
-
 int main(int argc, char** args)
 {
 	/* Make sure we have only two arguments */

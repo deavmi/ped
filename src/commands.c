@@ -14,6 +14,10 @@ void runCommand(char* str, struct Session* session)
 	{
 		session->isActive = 0;
 	}
+	else if(strcmp(str, "w") == 0)
+	{
+		write(session->fd, session->data, session->size);
+	}
 	/* TODO: Replace with file mapping */
 	/* This tries to load the object file provided */
 	else

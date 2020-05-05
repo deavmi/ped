@@ -5,7 +5,8 @@ FLAGS=-Wall -pedantic -ldl
 EXE=bin/ped
 
 all: install
-	$(CC) $(FLAGS) -o $(EXE) src/ped.c
+	$(CC) src/tty.c -o tty.o -c
+	$(CC) $(FLAGS) -o $(EXE) src/ped.c tty.o
 
 test: clean all
 	./bin/ped test

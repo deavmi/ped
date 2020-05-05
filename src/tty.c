@@ -1,5 +1,6 @@
 #include<termios.h>
 #include<sys/ioctl.h>
+#include "types.h"
 
 struct termios oldSettings;
 
