@@ -153,7 +153,12 @@ void newEditor(struct Session* session)
 					seq[1] = 91;
 					seq[2] = 68;
 
-					session->position--;
+					/* Only move cursor back if we not at home */
+					if(session->position)
+					{
+						session->position--;
+					}
+					
 				}
 
 			//	output(seq, 3);
