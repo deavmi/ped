@@ -12,6 +12,8 @@
 #include "ped.h"
 #include "commands.c"
 
+#include<dlfcn.h>
+
 struct termios oldSettings;
 
 int main(int argc, char** args)
