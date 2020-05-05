@@ -1,3 +1,7 @@
+#include <string.h>
+#include "types.h"
+#include "ped.h"
+
 void runCommand(char* str, struct Session* session)
 {
 	if(strcmp(str, "help") == 0)
