@@ -76,8 +76,6 @@ void redraw(struct Session* session)
 		output(seq, 3);
 		i++;
 	}
-
-	
 }
 
 void newEditor(struct Session* session)
@@ -88,7 +86,7 @@ void newEditor(struct Session* session)
 	/* Output the file as of now */
 	redraw(session);
 
-//output("hello world", strlen("hello world"));
+	//output("hello world", strlen("hello world"));
 	while(session->isActive)
 	{
 		char s;
@@ -188,16 +186,12 @@ void newEditor(struct Session* session)
 	//	output(l, strlen(l));
 	//	output(&s, 1);
 		
-
-		
-
 		/* Redraw */
 		redraw(session);		
 	}
 
 	char* bye = "\nBye mate!\n";
 	output(bye, strlen(bye));
-
 	
 	/* Restore tty settings */
 	stopTTY();
