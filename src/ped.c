@@ -6,15 +6,11 @@
 #include<sys/stat.h>
 #include<sys/types.h>
 
-#include<string.h>
 
 #include<termios.h>
 
-#include "types.h"
-
+#include "ped.h"
 #include "commands.c"
-
-struct Session* newSession(char*);
 
 struct termios oldSettings;
 
@@ -42,8 +38,10 @@ int main(int argc, char** args)
 	}
 	else
 	{
-		
+		printf("Too many args, or missing a file.\n");
+		return EXIT_FAILURE;
 	}
+	return EXIT_SUCCESS;
 }
 
 void output(char* string, unsigned int length)
@@ -210,7 +208,7 @@ void newEditor(struct Session* session)
 		redraw(session);		
 	}
 
-	char* bye = "Bye mate!";
+	char* bye = "\nBye mate!\n";
 	output(bye, strlen(bye));
 
 	/* Restore the tty settings back to the original */
