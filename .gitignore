@@ -1,3 +1,9 @@
+# Our stuff
+*.swp
+test
+bin/
+obj/
+
 # Prerequisites
 *.d
 
