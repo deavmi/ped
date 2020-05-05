@@ -1,4 +1,16 @@
 /**
+* Represents the tty
+*/
+struct TTY
+{
+	unsigned int rows;
+	unsigned int columns;
+
+	unsigned int cursorX;
+	unsigned int cursorY;
+};
+
+/**
 * Represents an open editor session.
 *
 * Consists of the file descriptor
@@ -24,4 +36,7 @@ struct Session
 	unsigned int position;
 
 	char isActive;
+
+	/* Pointer to the tty struct (we could copy it in here but oof) */
+	struct TTY* teletype;
 };
