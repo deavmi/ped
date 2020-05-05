@@ -1,4 +1,4 @@
-ped (previously `he`)
+ped (previously he)
 =====================
 
 Extensible text editor
