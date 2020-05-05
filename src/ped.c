@@ -15,8 +15,6 @@
 #include<dlfcn.h>
 #include "tty.c"
 
-struct termios oldSettings;
-
 int main(int argc, char** args)
 {
 	/* Make sure we have only two arguments */
@@ -85,7 +83,7 @@ void redraw(struct Session* session)
 void newEditor(struct Session* session)
 {
 	/* Setup the tty */
-	oldSettings = startTTY();
+	startTTY();
 
 	/* Output the file as of now */
 	redraw(session);
@@ -200,9 +198,9 @@ void newEditor(struct Session* session)
 	char* bye = "\nBye mate!\n";
 	output(bye, strlen(bye));
 
-	/* Restore the tty settings back to the original */
-	tcsetattr(0, 0, &oldSettings);
 	
+	/* Restore tty settings */
+	stopTTY();
 }
 
 struct Session* newSession(char* filename)
