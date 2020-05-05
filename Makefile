@@ -12,5 +12,6 @@ install:
 	mkdir -p bin
 
 clean:
+	rm -rf test
 	rm -rf bin
 	rm -rf obj
