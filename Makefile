@@ -1,7 +1,7 @@
 # Makefile for the Plugable EDitor #
 
 CC=gcc
-FLAGS=-Wall -pedantic
+FLAGS=-Wall -pedantic -ldl
 EXE=bin/ped
 
 all: install
