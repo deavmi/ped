@@ -6,13 +6,9 @@
 #include<sys/stat.h>
 #include<sys/types.h>
 
-
-#include<termios.h>
-
 #include "ped.h"
 #include "commands.c"
 
-#include<dlfcn.h>
 #include "tty.c"
 
 int main(int argc, char** args)
