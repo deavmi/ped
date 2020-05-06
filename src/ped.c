@@ -343,18 +343,21 @@ void newEditor(struct Session* session)
 		}
 		else
 		{
-			/* Map current xy fileX,fileY to linear address */
-			unsigned int f = map(session);
-			unsigned int fFinal = f+session->fileX;
+			/* `newLineAfterOffset` is the offset to the character after `\n` */
+			unsigned int newLineAfterOffset = map(session);
+
+			/* `finalOffset` is the new line offset with file cursor */
+			unsigned int finalOffset = newLineAfterOffset+session->fileX;
 
 			/**
 			* If the final linear address is greater-then
 			* or equal to the current size we must then
 			* expand the buffer.
 			*/
-			if(fFinal >= session->size)
+			if(finalOffset >= session->size)
 			{
-				session->size++;
+				/* Increase the size by fFInal-session->size */
+				session->size = finalOffset+session->fileX;
 					
 			}
 			else
@@ -364,7 +367,7 @@ void newEditor(struct Session* session)
 			
 			
 			/* Set data at current position */
-			*(session->data+fFinal) = s;
+			*(session->data+finalOffset) = s;
 
 			/* TODO: As we type position increases */
 			session->fileX++;
