@@ -19,9 +19,13 @@ struct TTY
 };
 
 /**
-*
+* Plugin
 *
 */
+struct Plugin
+{
+	//void (*dispatch)(struct Session*)
+};
 
 /**
 * Represents an open editor session.

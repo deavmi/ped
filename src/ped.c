@@ -157,6 +157,7 @@ void redraw(struct Session* session)
 
 	/* Draw the status line */
 	statusDraw(session);
+	free(session->status);
 	
 	/* Move cursor back home */
 	char cr = 13;
