@@ -55,9 +55,16 @@ void ttyPut(struct Session* session, char byte)
 		session->teletype->cursorX = 0;
 		session->teletype->cursorY++;
 	}
+	else if(byte == 13)
+	{
+		session->teletype->cursorX = 0;
+	}
 	
 }
 
+/**
+* Moves us back to the beginning of the terminal
+*/
 void goHome(struct Session* session)
 {
 	/* Move up */
@@ -68,10 +75,6 @@ void goHome(struct Session* session)
 		session->teletype->cursorY--;
 	}
 
-	/* Move home */
-	char cr = 13;
-	output(&cr, 1);
-	session->teletype->cursorX = 0;
 }
 
 void redraw2(struct Session* session)
@@ -83,8 +86,11 @@ void redraw2(struct Session* session)
 	/* General counter */
 	unsigned int i = 0;
 
-
+	/* This moves y back up */
 	goHome(session);
+
+	/* tty put carriage return */
+	ttyPut(session, 13);
 
 	ttyPut(session, '[');
 
@@ -100,35 +106,56 @@ void redraw2(struct Session* session)
 	i = 0;
 	while(i < columns-strlen(session->name)-2)
 	{
-		char symbol = '-';
-		output(&symbol, 1);
+		ttyPut(session, '-');
 		i++;
 	}
 
 	ttyPut(session, 10);
-	
+	ttyPut(session, 13);
 }
 
 void redraw(struct Session* session)
 {
-redraw2(session);
+	redraw2(session);
+	
 	/* Move cursor back home */
 	char cr = 13;
-	output(&cr, 1);
 
-	/* Print all the data */
-	output(session->data, session->size);
+	/* Write all the buffer data */
+	unsigned int i = 0;
+	while(i < session->size)
+	{
+		ttyPut(session, *(session->data+i));
+		i++;
+	}
 
 	/* Move cursor back home */
-	output(&cr, 1);
+	ttyPut(session, 13);
 
-	unsigned int i = 0;
-	while(i < session->position)
+	/* Move editor cursor to x-offset */
+	i = 0;
+	while(i < session->fileX)
 	{
-		char seq[3] = {27, 91, 67};
+		session->teletype->cursorX++;
+			char seq[3] = {27,91,67};
 		output(seq, 3);
 		i++;
 	}
+
+	/* Move editor cursor to y-offset */
+	i = 0;
+	while(i < session->fileY)
+	{
+		char seq[3] = {27,91,66};
+		output(seq, 3);
+		//ttyPut(session, 27);
+		//ttyPut(session, 91);
+		//ttyPut(session, 66);
+		session->teletype->cursorY++;
+		i++;
+	}
+
+	
 }
 
 void newEditor(struct Session* session)
@@ -167,12 +194,15 @@ void newEditor(struct Session* session)
 				/* Up arrow */
 				if(s == 65)
 				{
-					session->teletype->cursorY--;
+					if(session->fileY)
+					{
+						session->fileY--;
+					}
 				}
 				/* Down arrow */
 				else if (s == 66)
 				{
-					session->teletype->cursorY++;
+					session->fileY++;
 				}
 				/* Right arrow */
 				else if(s == 67)
@@ -181,8 +211,7 @@ void newEditor(struct Session* session)
 					seq[1] = 91;
 					seq[2] = 67;
 
-					session->position++;
-					session->teletype->cursorX++;
+					session->fileX++;
 				}
 				/* Left arrow */
 				else if (s == 68)
@@ -192,10 +221,9 @@ void newEditor(struct Session* session)
 					seq[2] = 68;
 
 					/* Only move cursor back if we not at home */
-					if(session->position)
+					if(session->fileX)
 					{
-						session->position--;
-						session->teletype->cursorX--;
+						session->fileX--;
 					}
 					
 				}
@@ -235,10 +263,10 @@ void newEditor(struct Session* session)
 		else
 		{
 			/* Set data at current position */
-			*(session->data+session->position) = s;
+			*(session->data+session->fileX) = s;
 			/* TODO: As we type position increases */
-			session->position++;
-			session->teletype->cursorX++;
+			session->fileX++;
+			//session->teletype->cursorX++;
 			//strncat(session->data, &s, 1);
 			session->size++;
 		}
@@ -316,10 +344,10 @@ struct Session* newSession(char* filename)
 			
 
 			/* TODO: Use xy :: Set initial position to 0 */
-			session->position = session->size;
+			session->fileX = session->size;
 			/* Set the tty */
 			session->teletype = newTTY();
-			session->teletype->cursorX = session->position;
+			session->teletype->cursorX = session->fileX;
 			
 			/* Set the session to active */
 			session->isActive = 1;
