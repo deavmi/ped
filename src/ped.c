@@ -80,6 +80,12 @@ void newEditor(struct Session* session)
 	/* Output the file as of now */
 	redraw(session);
 
+	/* Update the tty's dimensions */
+	updateDimensions(session->teletype);
+
+	/* Debugging */
+	//debugTTY(open("/dev/pts/18",O_RDWR), session->teletype);
+
 	//output("hello world", strlen("hello world"));
 	while(session->isActive)
 	{
@@ -102,12 +108,12 @@ void newEditor(struct Session* session)
 				/* Up arrow */
 				if(s == 65)
 				{
-				
+					session->teletype->cursorY--;
 				}
 				/* Down arrow */
 				else if (s == 66)
 				{
-					
+					session->teletype->cursorY++;
 				}
 				/* Right arrow */
 				else if(s == 67)
@@ -117,6 +123,7 @@ void newEditor(struct Session* session)
 					seq[2] = 67;
 
 					session->position++;
+					session->teletype->cursorX++;
 				}
 				/* Left arrow */
 				else if (s == 68)
@@ -129,6 +136,7 @@ void newEditor(struct Session* session)
 					if(session->position)
 					{
 						session->position--;
+						session->teletype->cursorX--;
 					}
 					
 				}
@@ -170,6 +178,7 @@ void newEditor(struct Session* session)
 			*(session->data+session->position) = s;
 			/* TODO: As we type position increases */
 			session->position++;
+			session->teletype->cursorX++;
 			//strncat(session->data, &s, 1);
 			session->size++;
 		}
@@ -179,6 +188,11 @@ void newEditor(struct Session* session)
 		sprintf(l, "%u", s);
 	//	output(l, strlen(l));
 	//	output(&s, 1);
+
+		/* Update the tty's dimensions */
+		updateDimensions(session->teletype);
+
+		//debugTTY(open("/dev/pts/18",O_RDWR), session->teletype);
 		
 		/* Redraw */
 		redraw(session);		
@@ -189,6 +203,16 @@ void newEditor(struct Session* session)
 	
 	/* Restore tty settings */
 	stopTTY();
+
+}
+
+struct TTY* newTTY()
+{
+	struct TTY* tty = malloc(sizeof(struct TTY));
+
+	updateDimensions(tty);
+
+	return tty;
 }
 
 struct Session* newSession(char* filename)
@@ -228,11 +252,16 @@ struct Session* newSession(char* filename)
 			//printf("%s", temp);
 			
 
-			/* Set initial position to 0 */
+			/* TODO: Use xy :: Set initial position to 0 */
 			session->position = session->size;
-
+			/* Set the tty */
+			session->teletype = newTTY();
+			session->teletype->cursorX = session->position;
+			
 			/* Set the session to active */
 			session->isActive = 1;
+
+			
 
 			/* On success, return the pointer to the session */
 			return session;

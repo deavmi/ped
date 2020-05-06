@@ -1,7 +1,9 @@
 #include<termios.h>
 #include<sys/ioctl.h>
 #include "types.h"
-
+#include<stdio.h>
+#include<unistd.h>
+#include<fcntl.h>
 struct termios oldSettings;
 
 void startTTY()
@@ -25,21 +27,31 @@ void startTTY()
 	
 	/* Set the tty to raw mode */
 	tcsetattr(0, 0, &termy);
-
-
-	testicle();
 }
 
-void testicle()
+void updateDimensions(struct TTY* tty)
 {
 	/* window size struct */
 	struct winsize size;
-	
+		
 	/* IOCTL the vnode via the fd that points to it */
 	ioctl(0, TIOCGWINSZ, &size);
 
-	printf("row: %u\n", size.ws_row);
-	printf("col: %u\n", size.ws_col);
+	/* Set the TTY's to be the same as the actual TTY's */
+	tty->rows = size.ws_row;
+	tty->columns = size.ws_col;
+
+	
+}
+
+void debugTTY(int fd, struct TTY* tty)
+{
+	FILE* f = fdopen(fd, "w+");
+	fprintf(f, "Row: %u\n", tty->rows);
+	
+	fprintf(f, "Column: %u\n", tty->columns);
+	fprintf(f,"XPos: %u\n", tty->cursorX);
+	fprintf(f,"YPos: %u\n", tty->cursorY);
 }
 
 void stopTTY()
