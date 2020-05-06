@@ -4,40 +4,67 @@
 #include<dlfcn.h>
 #include<stdlib.h>
 
-char* getCommand(char* str)
+char** getCommand(char* str)
 {
 	unsigned int i = 0;
-	char* newThing = malloc(20);
-	while(1)
+	char* newThing = malloc(1);
+
+	char active = 1;
+	while(active)
 	{
+		/* Get the current byte */
+		char currentByte = *(str+i);
 		
+		if(currentByte == ' ' || currentByte == 0)
+		{
+			*(newThing+i) = 0;
+			active=0;
+			i++;
+			continue;
+		}
+		else
+		{
+			*(newThing+i) = currentByte;
+		}
+
+		i++;
+		newThing = realloc(newThing, i+1);
 	}
+
+	char* args = str+i;
+
+	char** stuff = malloc(sizeof(char*)*2);
+	*stuff=newThing;
+	*(stuff+1)=args;
+
+	return stuff;
 }
 
-char* getArguments(char* str)
-{
-	
-}
 
 void runCommand(char* str, struct Session* session)
 {
 	/* TODO: Split the string by first space */
 	/* TODO: First item is command, after space is args */
 
-	/* Get command */
+	
+
+	/* Get command and arguments */
+	char* command = *getCommand(str);
+	output(command, strlen(command));
 
 	/* Get arguments */
+	char* args = *(getCommand(str)+1);
+	output(args, strlen(args));
 
-
-	if(strcmp(str, "help") == 0)
+	if(strcmp(command, "help") == 0)
 	{
 		output("NO HELP!", strlen("NO HELP!"));
 	}
-	else if(strcmp(str, "quit") == 0)
+	else if(strcmp(command, "quit") == 0)
 	{
 		session->isActive = 0;
 	}
-	else if(strcmp(str, "w") == 0)
+	else if(strcmp(command, "w") == 0)
 	{
 		write(session->fd, session->data, session->size);
 	}
@@ -47,7 +74,7 @@ void runCommand(char* str, struct Session* session)
 	{
 		/* Generate the object file name */
 		char* objectFile = malloc(strlen(str)+3);
-		strcpy(objectFile, str);
+		strcpy(objectFile, command);
 		strcat(objectFile, ".o");
 		
 		void* dynObjHandle = dlopen(objectFile, RTLD_NOW);

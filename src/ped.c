@@ -334,10 +334,12 @@ void newEditor(struct Session* session)
 					strncat(str, &s, 1);
 				}
 			}
-			output(str,strlen(str));
+			//output(str,strlen(str));
 
-			runCommand(str, session);
-			
+			if(strlen(str) > 0)
+			{
+				runCommand(str, session);	
+			}
 			
 			free(str);
 		}
