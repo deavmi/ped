@@ -52,7 +52,6 @@ void ttyPut(struct Session* session, char byte)
 	/* If the byte is a linefeed */
 	else if(byte == 10)
 	{
-		session->teletype->cursorX = 0;
 		session->teletype->cursorY++;
 	}
 	else if(byte == 13)
@@ -75,6 +74,37 @@ void goHome(struct Session* session)
 		session->teletype->cursorY--;
 	}
 
+	/* tty put carriage return */
+	ttyPut(session, 13);
+}
+
+/**
+* Moves the tty cursor to session->fileX and session->fileY
+*/
+void moveToFilePos(struct Session* session)
+{
+	unsigned int i = 0;
+
+	/* Move editor cursor to x-offset */
+	i = 0;
+	while(i < session->fileX)
+	{
+		session->teletype->cursorX++;
+		char seq[3] = {27,91,67};
+		output(seq, 3);
+		i++;
+	}
+
+	/* Move editor cursor to y-offset */
+	i = 0;
+	while(i < session->fileY)
+	{
+		char seq[3] = {27,91,66};
+		output(seq, 3);
+		session->teletype->cursorY++;
+		i++;
+	}
+
 }
 
 void redraw2(struct Session* session)
@@ -86,11 +116,8 @@ void redraw2(struct Session* session)
 	/* General counter */
 	unsigned int i = 0;
 
-	/* This moves y back up */
+	/* This moves y and x back to 0,0 back up */
 	goHome(session);
-
-	/* tty put carriage return */
-	ttyPut(session, 13);
 
 	ttyPut(session, '[');
 
@@ -110,7 +137,10 @@ void redraw2(struct Session* session)
 		i++;
 	}
 
+	/* Move us down */
 	ttyPut(session, 10);
+
+	/* Slam that carriage back */
 	ttyPut(session, 13);
 }
 
@@ -125,37 +155,84 @@ void redraw(struct Session* session)
 	unsigned int i = 0;
 	while(i < session->size)
 	{
-		ttyPut(session, *(session->data+i));
+		char byte = *(session->data+i);
+
+		if(byte == 10)
+		{
+			output("\n",1);
+			output("\r",1);
+			session->teletype->cursorX=0;
+			session->teletype->cursorY++;
+		}
+		else
+		{
+				ttyPut(session, *(session->data+i));	
+		}
+
+		
 		i++;
 	}
 
-	/* Move cursor back home */
-	ttyPut(session, 13);
+	/* First we go home and down a line */
+	goHome(session);
+	ttyPut(session, 10);
 
-	/* Move editor cursor to x-offset */
-	i = 0;
-	while(i < session->fileX)
+	/* Applies the file cursor position to the tty */
+	moveToFilePos(session);
+}
+
+void initialDisplay(struct Session* session)
+{
+	unsigned int i = 0;
+	while(i < session->size)
 	{
-		session->teletype->cursorX++;
-			char seq[3] = {27,91,67};
-		output(seq, 3);
+		char byte = *(session->data+i);
+
+		/* If the file contains a new line */
+		if(byte == 10)
+		{
+			/**
+			* If the file contains a new line
+			* then we move down and back.
+			*
+			* And increment cursor for file.
+			*/
+		//	ttyPut(session, 10);
+		//	ttyPut(session, 13);
+			session->fileY++;
+			session->fileX = 0;
+		}
+		else
+		{
+		//	ttyPut(session, byte);
+			session->fileX++;
+		}
+		
 		i++;
 	}
+}
 
-	/* Move editor cursor to y-offset */
-	i = 0;
-	while(i < session->fileY)
-	{
-		char seq[3] = {27,91,66};
-		output(seq, 3);
-		//ttyPut(session, 27);
-		//ttyPut(session, 91);
-		//ttyPut(session, 66);
-		session->teletype->cursorY++;
-		i++;
-	}
+unsigned int map(struct Session* session)
+{
+	char* dataBuffer = session->data;
+	unsigned int dataBufferLength = session->size;
 
+	unsigned int lineFeeds = session->fileY;
+	unsigned int lfOccs = lineFeeds;
 	
+	unsigned int i = 0;
+	while(i < session->size && lfOccs)
+	{
+		char byte = *(session->data+i);
+
+		if(byte == 10)
+		{
+			lfOccs--;
+		}
+		i++;
+	}
+
+	return i;
 }
 
 void newEditor(struct Session* session)
@@ -163,8 +240,12 @@ void newEditor(struct Session* session)
 	/* Setup the tty */
 	startTTY();
 
+	initialDisplay(session);
+
 	/* Output the file as of now */
 	redraw(session);
+
+	
 
 	/* Update the tty's dimensions */
 	updateDimensions(session->teletype);
@@ -262,13 +343,34 @@ void newEditor(struct Session* session)
 		}
 		else
 		{
+			/* Map current xy fileX,fileY to linear address */
+			unsigned int f = map(session);
+			unsigned int fFinal = f+session->fileX;
+
+			/**
+			* If the final linear address is greater-then
+			* or equal to the current size we must then
+			* expand the buffer.
+			*/
+			if(fFinal >= session->size)
+			{
+				session->size++;
+					
+			}
+			else
+			{
+				
+			}
+			
+			
 			/* Set data at current position */
-			*(session->data+session->fileX) = s;
+			*(session->data+fFinal) = s;
+
 			/* TODO: As we type position increases */
 			session->fileX++;
 			//session->teletype->cursorX++;
 			//strncat(session->data, &s, 1);
-			session->size++;
+			
 		}
 		
 		//printf("%c\n",s);
@@ -344,10 +446,14 @@ struct Session* newSession(char* filename)
 			
 
 			/* TODO: Use xy :: Set initial position to 0 */
-			session->fileX = session->size;
+			//session->fileX = session->size;
+			session->fileX = 0;
+			session->fileY = 0;
+			//session->fileY = linefeedCount(session->data, session->size);
 			/* Set the tty */
 			session->teletype = newTTY();
-			session->teletype->cursorX = session->fileX;
+			//session->teletype->cursorX = session->fileX;
+			
 			
 			/* Set the session to active */
 			session->isActive = 1;

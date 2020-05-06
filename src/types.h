@@ -19,6 +19,11 @@ struct TTY
 };
 
 /**
+*
+*
+*/
+
+/**
 * Represents an open editor session.
 *
 * Consists of the file descriptor

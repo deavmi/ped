@@ -1,6 +1,22 @@
 #include<string.h>
 #include<unistd.h>
 
+unsigned int linefeedCount(char* str, unsigned int size)
+{
+	unsigned int i = 0;
+	unsigned int c = 0;
+	while(c != size && *str)
+	{
+		if(*str == 10)
+		{
+			i++;
+		}
+		str=str+1;
+		c++;
+	}
+	return i;
+}
+
 /**
 * Writes a null-terminated string to the tty
 */
