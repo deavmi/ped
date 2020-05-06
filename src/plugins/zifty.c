@@ -23,7 +23,7 @@ void dispatch(struct Session* session)
 	*session->status=0;
 
 	/* Add name */
-	strcat(session->status, "🐻️️[");
+	strcat(session->status, "{🐻}️️[");
 	strcat(session->status, session->name);
 	strcat(session->status, "]");
 
@@ -34,11 +34,11 @@ void dispatch(struct Session* session)
 	strcat(session->status, ")");
 	
 	i = 0;
-	while(i < columns-strlen(session->name)-2-strlen(temp)-2-2)
+	while(i < columns-strlen(session->name)-2-strlen(temp)-2-2-2)
 	{
 		strcat(session->status, "-");
 		i++;
 	}
 
-	//free(temp);
+	free(temp);
 }
