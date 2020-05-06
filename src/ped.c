@@ -294,7 +294,16 @@ void newEditor(struct Session* session)
 				/* Down arrow */
 				else if (s == 66)
 				{
-					session->fileY++;
+					//session->fileY++/;
+
+					if(session->teletype->rows-2 == session->fileY)
+					{
+						
+					}
+					else
+					{
+						session->fileY++;
+					}
 				}
 				/* Right arrow */
 				else if(s == 67)
@@ -303,7 +312,14 @@ void newEditor(struct Session* session)
 					seq[1] = 91;
 					seq[2] = 67;
 
-					session->fileX++;
+					if(session->teletype->columns-1 == session->fileX)
+					{
+						
+					}
+					else
+					{
+						session->fileX++;
+					}
 				}
 				/* Left arrow */
 				else if (s == 68)
