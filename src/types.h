@@ -57,4 +57,7 @@ struct Session
 	struct TTY* teletype;
 
 	char* name;
+
+	char* status;
+	unsigned int statusLength;
 };

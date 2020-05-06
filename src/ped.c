@@ -396,8 +396,8 @@ void newEditor(struct Session* session)
 		}
 		
 		//printf("%c\n",s);
-		char* l = malloc(20);
-		sprintf(l, "%u", s);
+	//	char* l = malloc(20);
+	//	sprintf(l, "%u", s);
 	//	output(l, strlen(l));
 	//	output(&s, 1);
 
@@ -412,6 +412,8 @@ void newEditor(struct Session* session)
 
 	char* bye = "\nBye mate!\n";
 	output(bye, strlen(bye));
+
+	/* Clean up commands */
 	
 	/* Restore tty settings */
 	stopTTY();
