@@ -36,6 +36,7 @@ int main(int argc, char** args)
 		printf("Too many args, or missing a file.\n");
 		return EXIT_FAILURE;
 	}
+	
 	return EXIT_SUCCESS;
 }
 

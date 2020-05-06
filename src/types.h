@@ -3,11 +3,16 @@
 */
 struct TTY
 {
+	/* Dimensions of tty */
 	unsigned int rows;
 	unsigned int columns;
 
+	/* Current position */
 	unsigned int cursorX;
 	unsigned int cursorY;
+
+	/* Screen data to draw */
+	char* screen;
 };
 
 /**
@@ -35,8 +40,9 @@ struct Session
 	/* Position */
 	unsigned int position;
 
+	/* Whether or not we are running */
 	char isActive;
 
-	/* Pointer to the tty struct (we could copy it in here but oof) */
+	/* Pointer to tty object */
 	struct TTY* teletype;
 };
