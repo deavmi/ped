@@ -40,18 +40,6 @@ int main(int argc, char** args)
 	return EXIT_SUCCESS;
 }
 
-void output(char* string, unsigned int length)
-{
-	write(0, string, length);
-}
-
-char getChar()
-{
-	char character;
-	int b = read(0, &character, 1);
-	return character;
-}
-
 void redraw(struct Session* session)
 {
 	/* Move cursor back home */
