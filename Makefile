@@ -7,7 +7,8 @@ EXE=bin/ped
 all: install
 	$(CC) src/tty.c -o tty.o -c
 	$(CC) src/utils.c -o utils.o -c
-	$(CC) $(FLAGS) -o $(EXE) src/ped.c tty.o utils.o
+	$(CC) src/commands.c -o commands.o -c
+	$(CC) $(FLAGS) -o $(EXE) src/ped.c tty.o utils.o commands.o
 
 test: clean all
 	./bin/ped test
