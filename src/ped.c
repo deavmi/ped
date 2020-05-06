@@ -7,7 +7,7 @@
 #include<sys/types.h>
 
 #include "ped.h"
-#include "commands.c"
+#include "types.h"
 
 int main(int argc, char** args)
 {
@@ -40,8 +40,78 @@ int main(int argc, char** args)
 	return EXIT_SUCCESS;
 }
 
+void ttyPut(struct Session* session, char byte)
+{
+	output(&byte, 1);
+
+	/* Check if the byte if not a line feed */
+	if(byte != 10)
+	{
+		session->teletype->cursorX++;	
+	}
+	/* If the byte is a linefeed */
+	else if(byte == 10)
+	{
+		session->teletype->cursorX = 0;
+		session->teletype->cursorY++;
+	}
+	
+}
+
+void goHome(struct Session* session)
+{
+	/* Move up */
+	while(session->teletype->cursorY)
+	{
+		char seq[3] = {27, 91, 65};
+		output(seq, 3);
+		session->teletype->cursorY--;
+	}
+
+	/* Move home */
+	char cr = 13;
+	output(&cr, 1);
+	session->teletype->cursorX = 0;
+}
+
+void redraw2(struct Session* session)
+{
+	/* Get dimensions */
+	unsigned int rows = session->teletype->rows;
+	unsigned int columns = session->teletype->columns;
+
+	/* General counter */
+	unsigned int i = 0;
+
+
+	goHome(session);
+
+	ttyPut(session, '[');
+
+	/* Draw name */
+	while(i < strlen(session->name))
+	{
+		ttyPut(session, *(session->name+i));
+		i++;
+	}
+
+	ttyPut(session, ']');
+
+	i = 0;
+	while(i < columns-strlen(session->name)-2)
+	{
+		char symbol = '-';
+		output(&symbol, 1);
+		i++;
+	}
+
+	ttyPut(session, 10);
+	
+}
+
 void redraw(struct Session* session)
 {
+redraw2(session);
 	/* Move cursor back home */
 	char cr = 13;
 	output(&cr, 1);
@@ -138,6 +208,7 @@ void newEditor(struct Session* session)
 		/* Ctrl+D is command key */
 		else if(s == 4)
 		{
+		
 			char* str = malloc(200);
 			*str = 0;
 
@@ -219,6 +290,9 @@ struct Session* newSession(char* filename)
 		{
 			/* Set the file descriptor */
 			session->fd = fd;
+
+			/* Set name */
+			session->name = filename;
 
 			/* Get the stat struct */
 			struct stat statStruct;

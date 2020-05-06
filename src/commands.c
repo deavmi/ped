@@ -4,8 +4,31 @@
 #include<dlfcn.h>
 #include<stdlib.h>
 
+char* getCommand(char* str)
+{
+	unsigned int i = 0;
+	char* newThing = malloc(20);
+	while(1)
+	{
+		
+	}
+}
+
+char* getArguments(char* str)
+{
+	
+}
+
 void runCommand(char* str, struct Session* session)
 {
+	/* TODO: Split the string by first space */
+	/* TODO: First item is command, after space is args */
+
+	/* Get command */
+
+	/* Get arguments */
+
+
 	if(strcmp(str, "help") == 0)
 	{
 		output("NO HELP!", strlen("NO HELP!"));

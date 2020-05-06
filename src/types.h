@@ -13,6 +13,9 @@ struct TTY
 
 	/* Screen data to draw */
 	char* screen;
+
+	/* Length of screen buffer */
+	unsigned int screenLength;
 };
 
 /**
@@ -39,10 +42,14 @@ struct Session
 
 	/* Position */
 	unsigned int position;
+	unsigned int fileX;
+	unsigned int fileY;
 
 	/* Whether or not we are running */
 	char isActive;
 
 	/* Pointer to tty object */
 	struct TTY* teletype;
+
+	char* name;
 };
