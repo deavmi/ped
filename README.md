@@ -1,4 +1,4 @@
-Ted
+🧸Ted
 ===
 
 **Ted** (or **T**ristan's **ed**itor) is a text editor that aims at being as minimalist as possible but supporting dynamically loadable modules to add to its featureset.
