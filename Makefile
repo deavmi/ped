@@ -9,7 +9,8 @@ all: install
 	$(CC) src/utils.c -o utils.o -c
 	$(CC) src/commands.c -o commands.o -c
 	$(CC) $(FLAGS) -o $(EXE) src/ped.c tty.o utils.o commands.o
-
+	gcc src/plugins/zifty.c -o zifty.o -shared -fPIC
+	
 test: clean all
 	./bin/ped test
 	rm -rf test

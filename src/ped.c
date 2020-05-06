@@ -9,6 +9,8 @@
 #include "ped.h"
 #include "types.h"
 
+#include<dlfcn.h>
+
 int main(int argc, char** args)
 {
 	/* Make sure we have only two arguments */
@@ -107,36 +109,27 @@ void moveToFilePos(struct Session* session)
 
 }
 
-void redraw2(struct Session* session)
+/**
+* Draws the header line
+*/
+void statusDraw(struct Session* session)
 {
-	/* Get dimensions */
-	unsigned int rows = session->teletype->rows;
-	unsigned int columns = session->teletype->columns;
-
 	/* General counter */
 	unsigned int i = 0;
 
 	/* This moves y and x back to 0,0 back up */
 	goHome(session);
 
-	ttyPut(session, '[');
+	/* Get the length of the status line */
+	unsigned int statusLength = strlen(session->status);
+	char* statusLine = session->status;
 
-	/* Draw name */
-	while(i < strlen(session->name))
+	while(i< statusLength)
 	{
-		ttyPut(session, *(session->name+i));
+		char byte = *(statusLine+i);
+		ttyPut(session, byte);
 		i++;
 	}
-
-	ttyPut(session, ']');
-
-	i = 0;
-	while(i < columns-strlen(session->name)-2)
-	{
-		ttyPut(session, '-');
-		i++;
-	}
-
 	/* Move us down */
 	ttyPut(session, 10);
 
@@ -144,9 +137,26 @@ void redraw2(struct Session* session)
 	ttyPut(session, 13);
 }
 
+void loadPlugins()
+{
+	
+}
+
+void runDrawPlugins(struct Session* session)
+{
+	/* TODO: This is to load zifty, this should be a loop form a file */
+	void* dynObjHandle = dlopen("zifty.o", RTLD_NOW);
+	void (*funcPtr)(struct Session*) = dlsym(dynObjHandle, "dispatch");
+	funcPtr(session);
+}
+
 void redraw(struct Session* session)
 {
-	redraw2(session);
+	/* Run all plugins that run on draw */
+	runDrawPlugins(session);
+
+	/* Draw the status line */
+	statusDraw(session);
 	
 	/* Move cursor back home */
 	char cr = 13;
@@ -318,9 +328,9 @@ void newEditor(struct Session* session)
 		else if(s == 4)
 		{
 		
-			char* str = malloc(200);
+			char* str = malloc(20);
 			*str = 0;
-
+			unsigned int i = 0;
 			while(1)
 			{
 				s=getChar();
@@ -332,6 +342,13 @@ void newEditor(struct Session* session)
 				else
 				{
 					strncat(str, &s, 1);
+				}
+				i++;
+
+				if(i==20)
+				{
+					str=realloc(str, i+20);
+					i=0;
 				}
 			}
 			//output(str,strlen(str));
