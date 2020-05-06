@@ -1,7 +1,7 @@
-ped (previously he)
-=====================
+Ted
+===
 
-**Ped** (or **p**retty **e**xtendable **e**ditor) is a text editor that aims at being as minimalist as possible but supporting dynamically loadable modules to add to its featureset.
+**Ted** (or **T**ristan's **ed**itor) is a text editor that aims at being as minimalist as possible but supporting dynamically loadable modules to add to its featureset.
 
 ## Compiling
 
