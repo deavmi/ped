@@ -40,5 +40,5 @@ void dispatch(struct Session* session)
 		i++;
 	}
 
-	free(temp);
+	//free(temp);
 }

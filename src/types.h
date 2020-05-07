@@ -65,3 +65,16 @@ struct Session
 	char* status;
 	unsigned int statusLength;
 };
+
+
+struct Editor
+{
+	/* Attached session */
+	struct Session* sessions;
+
+	/* Current session */
+	struct Session* currentSession;
+
+	/* Loaded plugins */
+	struct Plugin* plugins;
+};

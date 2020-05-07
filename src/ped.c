@@ -11,8 +11,20 @@
 
 #include<dlfcn.h>
 
+#include<string.h>
+
+/* TODO: Store session here so we can swap out sessions */
+
+/**
+* Represents this editor
+*/
+struct Editor editor;
+
 int main(int argc, char** args)
 {
+	/* Create a new editor instance */
+	newEditor2(&editor);
+
 	/* Make sure we have only two arguments */
 	if(argc == 2)
 	{
@@ -21,6 +33,11 @@ int main(int argc, char** args)
 
 		/* Create a new session */
 		struct Session* session = newSession(filename);
+
+		/* TODO: Skippy make function to add it to linked list */
+
+		/* Set the current session to it */
+		setCurrentSession(&editor, session);
 
 		if(session)
 		{
@@ -157,7 +174,7 @@ void redraw(struct Session* session)
 
 	/* Draw the status line */
 	statusDraw(session);
-	free(session->status);
+//	free(session->status);
 	
 	/* Move cursor back home */
 	char cr = 13;
@@ -246,6 +263,12 @@ unsigned int map(struct Session* session)
 	return i;
 }
 
+void ring()
+{
+	char bell = '\a';
+	output(&bell, 1);
+}
+
 void newEditor(struct Session* session)
 {
 	/* Setup the tty */
@@ -282,7 +305,7 @@ void newEditor(struct Session* session)
 			if(s == 91)
 			{
 				s=getChar();
-				char seq[3];
+
 				/* Up arrow */
 				if(s == 65)
 				{
@@ -294,11 +317,9 @@ void newEditor(struct Session* session)
 				/* Down arrow */
 				else if (s == 66)
 				{
-					//session->fileY++/;
-
 					if(session->teletype->rows-2 == session->fileY)
 					{
-						
+						ring();
 					}
 					else
 					{
@@ -308,13 +329,9 @@ void newEditor(struct Session* session)
 				/* Right arrow */
 				else if(s == 67)
 				{
-					seq[0] = 27;
-					seq[1] = 91;
-					seq[2] = 67;
-
 					if(session->teletype->columns-1 == session->fileX)
 					{
-						
+						ring();
 					}
 					else
 					{
@@ -324,10 +341,6 @@ void newEditor(struct Session* session)
 				/* Left arrow */
 				else if (s == 68)
 				{
-					seq[0] = 27;
-					seq[1] = 91;
-					seq[2] = 68;
-
 					/* Only move cursor back if we not at home */
 					if(session->fileX)
 					{
@@ -394,7 +407,6 @@ void newEditor(struct Session* session)
 			{
 				/* Increase the size by fFInal-session->size */
 				session->size = finalOffset+session->fileX;
-					
 			}
 			else
 			{
@@ -499,6 +511,7 @@ struct Session* newSession(char* filename)
 			/* Set the session to active */
 			session->isActive = 1;
 
+			/* Set the plugins to 0 */
 			
 
 			/* On success, return the pointer to the session */
