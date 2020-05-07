@@ -28,6 +28,35 @@ struct Plugin
 };
 
 /**
+* Represents a line as part of a Map
+*/
+struct Line
+{
+	char* data;
+	unsigned int length;
+};
+
+/**
+* Represents (x,y) whereby (x,y) exists in file and does not
+*/
+struct EditMap
+{
+	char** flags;
+	unsigned int rows;
+	unsigned int columns;
+};
+
+/**
+* Represents the mapping of a file to a text editor screen
+*/
+struct Map
+{
+	struct Edit* editMap;
+	struct Line* lines;
+	unsigned int lineCount;
+};
+
+/**
 * Represents an open editor session.
 *
 * Consists of the file descriptor

@@ -24,6 +24,7 @@ int main(int argc, char** args)
 {
 	/* Create a new editor instance */
 	newEditor2(&editor);
+	loadPlugins(&editor);
 
 	/* Make sure we have only two arguments */
 	if(argc == 2)
@@ -42,7 +43,7 @@ int main(int argc, char** args)
 		if(session)
 		{
 			/* Open the editor */
-			newEditor(session);
+			newEditor();
 
 			/* Free the session */
 			free(session);
@@ -154,23 +155,18 @@ void statusDraw(struct Session* session)
 	ttyPut(session, 13);
 }
 
-void loadPlugins()
-{
-	
-}
-
-void runDrawPlugins(struct Session* session)
+void runDrawPlugins()
 {
 	/* TODO: This is to load zifty, this should be a loop form a file */
 	void* dynObjHandle = dlopen("zifty.o", RTLD_NOW);
-	void (*funcPtr)(struct Session*) = dlsym(dynObjHandle, "dispatch");
-	funcPtr(session);
+	unsigned char (*funcPtr)(struct Editor*, char*, void*) = dlsym(dynObjHandle, "dispatch");
+	funcPtr(&editor, "onRedraw", NULL);
 }
 
 void redraw(struct Session* session)
 {
 	/* Run all plugins that run on draw */
-	runDrawPlugins(session);
+	runDrawPlugins();
 
 	/* Draw the status line */
 	statusDraw(session);
@@ -269,8 +265,11 @@ void ring()
 	output(&bell, 1);
 }
 
-void newEditor(struct Session* session)
+void newEditor()
 {
+	/* The current session */
+	struct Session* session = editor.currentSession;
+
 	/* Setup the tty */
 	startTTY();
 
@@ -357,38 +356,43 @@ void newEditor(struct Session* session)
 		/* Ctrl+D is command key */
 		else if(s == 4)
 		{
-		
-			char* str = malloc(20);
-			*str = 0;
+			/* Allocate a byte */
+			char* str = malloc(1);
+
+			/* Receive input till next Ctrl+D */
 			unsigned int i = 0;
 			while(1)
 			{
+				/* Get next character */
 				s=getChar();
 
 				if(s==4)
 				{
+					/* Null terminate the string */
+					*(str+i) = 0;
 					break;
 				}
 				else
 				{
-					strncat(str, &s, 1);
+					/* Append new character */
+					*(str+i) = s;
 				}
 				i++;
 
-				if(i==20)
-				{
-					str=realloc(str, i+20);
-					i=0;
-				}
+				str = realloc(str, i+1);
 			}
 			//output(str,strlen(str));
 
 			if(strlen(str) > 0)
 			{
-				runCommand(str, session);	
+				runCommand(str, &editor);	
+			}
+			if(str==0)
+			{
+				/* TODO: Bug here, this if statement never runs and is useless */
+				free(str);	
 			}
 			
-			free(str);
 		}
 		else
 		{
@@ -439,8 +443,8 @@ void newEditor(struct Session* session)
 		redraw(session);		
 	}
 
-	char* bye = "\nBye mate!\n";
-	output(bye, strlen(bye));
+	//char* bye = "\nBye mate!\n";
+	//output(bye, strlen(bye));
 
 	/* Clean up commands */
 	
@@ -456,72 +460,4 @@ struct TTY* newTTY()
 	updateDimensions(tty);
 
 	return tty;
-}
-
-struct Session* newSession(char* filename)
-{
-	/* Allocate the session */
-	struct Session* session = malloc(sizeof(struct Session));
-
-	/* Make sure it allocated */
-	if(session)
-	{
-		/* Open the file */
-		int fd = open(filename, O_CREAT|O_RDWR);
-
-		if(fd >= 0)
-		{
-			/* Set the file descriptor */
-			session->fd = fd;
-
-			/* Set name */
-			session->name = filename;
-
-			/* Get the stat struct */
-			struct stat statStruct;
-
-			/* Fill stat struct */
-			fstat(fd, &statStruct);
-	
-			/* Set the initial size */
-			session->size = statStruct.st_size;
-
-			/* Allocate initial space for buffer */
-			/* TODO: Remove and be dynamic */
-			session->data = malloc(session->size+69);
-
-			/* Set the initial characters */
-			read(fd, session->data, session->size);
-
-			char* temp = malloc(session->size+1);
-			strncpy(temp, session->data, session->size);
-			//printf("%s", temp);
-			
-
-			/* TODO: Use xy :: Set initial position to 0 */
-			//session->fileX = session->size;
-			session->fileX = 0;
-			session->fileY = 0;
-			//session->fileY = linefeedCount(session->data, session->size);
-			/* Set the tty */
-			session->teletype = newTTY();
-			//session->teletype->cursorX = session->fileX;
-			
-			
-			/* Set the session to active */
-			session->isActive = 1;
-
-			/* Set the plugins to 0 */
-			
-
-			/* On success, return the pointer to the session */
-			return session;
-		}
-
-		/* On successful malloc, but file failure */
-		free(session);
-	}
-
-	/* On error */
-	return 0;
 }

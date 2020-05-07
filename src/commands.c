@@ -42,7 +42,7 @@ char** getCommand(char* str)
 }
 
 
-void runCommand(char* str, struct Session* session)
+void runCommand(char* str, struct Editor* editor)
 {
 	/* TODO: Split the string by first space */
 	/* TODO: First item is command, after space is args */
@@ -63,16 +63,17 @@ void runCommand(char* str, struct Session* session)
 	}
 	else if(strcmp(command, "quit") == 0)
 	{
-		session->isActive = 0;
+		editor->currentSession->isActive = 0;
 	}
 	else if(strcmp(command, "w") == 0)
 	{
-		write(session->fd, session->data, session->size);
+		write(editor->currentSession->fd, editor->currentSession->data, editor->currentSession->size);
 	}
 	/* TODO: Replace with file mapping */
 	/* This tries to load the object file provided */
 	else
 	{
+		//return;
 		/* Generate the object file name */
 		char* objectFile = malloc(strlen(str)+3);
 		strcpy(objectFile, command);
@@ -82,11 +83,11 @@ void runCommand(char* str, struct Session* session)
 
 		if(dynObjHandle)
 		{
-			void (*funcPtr)(struct Session*) = dlsym(dynObjHandle, "dispatch");
+			unsigned char (*funcPtr)(struct Editor*, char*, void*) = dlsym(dynObjHandle, "dispatch");
 
 			if(funcPtr)
 			{
-				funcPtr(session);
+				funcPtr(editor, "onCommand", NULL);
 			}
 			else
 			{

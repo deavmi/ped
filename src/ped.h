@@ -1,3 +1,10 @@
-void output(char *string, unsigned int length);
+void output(char*, unsigned int);
 struct Session *newSession(char*);
-void newEditor(struct Session* session);
+void newEditor();
+
+void startTTY();
+void stopTTY();
+
+char getChar();
+
+void loadPlugins(struct Editor*);

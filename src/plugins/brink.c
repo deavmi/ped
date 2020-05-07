@@ -1,12 +1,12 @@
 #include "../types.h"
 #include<stdio.h>
 
-void dispatch(struct Session* session)
+void dispatch(struct Editor* editor)
 {
 	//session->position = 5;
 	int g = 1;
 	g++;
-	printf("EXAAAAACTLY!\n");
-	session->isActive=0;
+	printf("EXAAAAACTLasdfhfdjhjfasdhfkjasdhfaskhfdskjhsadfkjY!\n");
+	editor->currentSession->isActive=0;
 
 }

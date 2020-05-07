@@ -9,8 +9,11 @@ all: install
 	$(CC) src/utils.c -o utils.o -c
 	$(CC) src/commands.c -o commands.o -c
 	$(CC) src/editor.c -o editor.o -c
-	$(CC) $(FLAGS) -o $(EXE) src/ped.c tty.o utils.o commands.o editor.o
+	$(CC) src/session.c -o session.o -c
+	$(CC) src/plugins.c -o plugins.o -c
+	$(CC) $(FLAGS) -o $(EXE) src/ped.c tty.o utils.o commands.o editor.o session.o plugins.o
 	gcc src/plugins/zifty.c -o zifty.o -shared -fPIC
+	gcc src/plugins/reload.c -o reload.o -shared -fPIC
 	
 test: clean all
 	./bin/ped test

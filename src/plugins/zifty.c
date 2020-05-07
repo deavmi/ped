@@ -10,35 +10,39 @@
 * is default as Tristan knows best.
 */
 
-void dispatch(struct Session* session)
+unsigned char dispatch(struct Editor* editor, char* callType, void* args)
 {
-	/* Get dimensions */
-	unsigned int columns = session->teletype->columns;
-
-	/* General counter */
-	unsigned int i = 0;
-
-	/* STatus line */
-	session->status = malloc(columns);
-	*session->status=0;
-
-	/* Add name */
-	strcat(session->status, "{🐻}️️[");
-	strcat(session->status, session->name);
-	strcat(session->status, "]");
-
-	strcat(session->status, "(");
-	char* temp = malloc(20);
-	sprintf(temp, "%u", session->size);
-	strcat(session->status, temp);
-	strcat(session->status, ")");
-	
-	i = 0;
-	while(i < columns-strlen(session->name)-2-strlen(temp)-2-2-2)
+	if(strcmp(callType, "onRedraw") == 0)
 	{
-		strcat(session->status, "-");
-		i++;
-	}
+		/* Get dimensions */
+		unsigned int columns = editor->currentSession->teletype->columns;
 
-	//free(temp);
+		/* General counter */
+		unsigned int i = 0;
+
+		/* STatus line */
+		editor->currentSession->status = malloc(columns);
+		*editor->currentSession->status=0;
+
+		/* Add name */
+		strcat(editor->currentSession->status, "{🐻}️️[");
+		strcat(editor->currentSession->status, editor->currentSession->name);
+		strcat(editor->currentSession->status, "]");
+
+		strcat(editor->currentSession->status, "(");
+		char* temp = malloc(20);
+		sprintf(temp, "%u", editor->currentSession->size);
+		strcat(editor->currentSession->status, temp);
+		strcat(editor->currentSession->status, ")");
+		
+		i = 0;
+		while(i < columns-strlen(editor->currentSession->name)-2-strlen(temp)-2-2-2)
+		{
+			strcat(editor->currentSession->status, "-");
+			i++;
+		}
+
+		//free(temp);	
+	}
+	
 }
